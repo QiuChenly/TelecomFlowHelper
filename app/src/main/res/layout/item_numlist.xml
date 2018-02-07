@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mItemList_NumList_CDV"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:translationZ="2dp"
+    app:cardCornerRadius="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/mItemList_NumList_UserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="QiuChenly"
+                    android:textColor="#424242" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="5dp">
+
+                    <ImageView
+                        android:id="@+id/mItemList_NumList_OnlineStateBack"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/user_offline" />
+
+                    <TextView
+                        android:id="@+id/mItemList_NumList_OnlineState"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:text="未登录"
+                        android:textColor="#f4f4f4"
+                        android:textSize="10dp" />
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/mItemList_NumList_Numbers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="号码:17722222222"
+                android:textColor="#424242" />
+
+            <TextView
+                android:id="@+id/mItemList_NumList_Acur"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="话费:本月消费 800 元,剩余 -900 元"
+                android:textColor="#424242" />
+
+            <TextView
+                android:id="@+id/mItemList_NumList_LiuLiang"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="流量:本月共 800 GB,剩余 -100 GB"
+                android:textColor="#424242" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#bdbdbd" />
+
+        <TextView
+            android:id="@+id/mItemList_NumList_knownMore"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_gravity="bottom"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:gravity="center"
+            android:text="了解更多"
+            android:textColor="#424242" />
+    </LinearLayout>
+</android.support.v7.widget.CardView>
