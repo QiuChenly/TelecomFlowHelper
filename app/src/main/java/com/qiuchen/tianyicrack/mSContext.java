@@ -2,14 +2,15 @@ package com.qiuchen.tianyicrack;
 
 import android.app.Application;
 import android.content.Context;
+import android.net.ConnectivityManager;
 
-import com.qiuchen.tianyicrack.Presenter.*;
+import com.qiuchen.tianyicrack.Presenter.DB;
 
 /**
  * Created by qiuchen on 2018/2/6.
  */
 
-public class mSharedContext extends Application {
+public class mSContext extends Application {
 
     @Override
     public void onCreate() {
@@ -27,5 +28,13 @@ public class mSharedContext extends Application {
 
     public static DB getDB() {
         return mDB;
+    }
+
+    public static Boolean hasNet() {
+        ConnectivityManager conn = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (conn != null) {
+            return conn.getActiveNetworkInfo() != null && conn.getActiveNetworkInfo().isAvailable();
+        }
+        return false;
     }
 }

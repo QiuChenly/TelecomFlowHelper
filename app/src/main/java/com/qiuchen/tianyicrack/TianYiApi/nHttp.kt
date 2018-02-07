@@ -2,7 +2,8 @@ package com.qiuchen.jingyi.nativeHttp
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.Charset
@@ -137,12 +138,13 @@ open class nHttp(ret: nHttpRet) {
         /**
          * 实体请求方法
          * 2018.2.6 QiuChenly 修正 Method方法判断导致无法自动识别POST请求的问题
+         * 2018.2.7 QiuChenly 修正 连接超时问题
          */
         private fun RequestHttp(u: String, m: String, data: ByteArray, RequestHeader: HashMap<String, String>, allowRedirect: Boolean): nHttpRet {
             val urlConn = URL(u).openConnection() as HttpURLConnection
             urlConn.requestMethod = m
-            urlConn.connectTimeout = 5000
-            urlConn.readTimeout = 5000
+            urlConn.connectTimeout = 15000
+            urlConn.readTimeout = 15000
             if (data.isNotEmpty()) {
                 urlConn.requestMethod = METHOD_POST
             }
@@ -165,7 +167,13 @@ open class nHttp(ret: nHttpRet) {
             if (nCook != null) {
                 nCook?.addAll(getCookies(urlConn))
             }
-            return nHttpRet(urlConn.responseCode, getBytes(urlConn.inputStream), urlConn.headerFields)
+            //修正连接超时导致闪退的BUG
+            var code = -555
+            try {
+                code = urlConn.responseCode
+            } catch (e: Exception) {
+            }
+            return nHttpRet(code, getBytes(urlConn.inputStream), urlConn.headerFields)
         }
 
         //异步请求方法

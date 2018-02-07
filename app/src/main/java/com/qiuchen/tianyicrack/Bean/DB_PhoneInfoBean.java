@@ -5,5 +5,5 @@ package com.qiuchen.tianyicrack.Bean;
  */
 
 public class DB_PhoneInfoBean {
-    public String user,pass,session;
+    public String user,pass, token,areaCode;
 }

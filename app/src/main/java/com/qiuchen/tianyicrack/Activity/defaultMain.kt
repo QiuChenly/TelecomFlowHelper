@@ -17,7 +17,7 @@ import com.qiuchen.tianyicrack.Bean.DB_PhoneInfoBean
 import com.qiuchen.tianyicrack.Other.onPageChange
 import com.qiuchen.tianyicrack.Other.onePlus
 import com.qiuchen.tianyicrack.R
-import com.qiuchen.tianyicrack.mSharedContext
+import com.qiuchen.tianyicrack.mSContext
 import kotlinx.android.synthetic.main.activity_content.*
 import kotlinx.android.synthetic.main.activity_default_main.*
 
@@ -81,7 +81,7 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
                         d.pass = passs
                         val element = onPageChanges.getViewHelper(position = 0) as onePlus
                         element.addElement(d)
-                        mSharedContext.getDB().addPhone(users, passs)
+                        mSContext.getDB().addPhone(users, passs)
                         bt.cancel()
                     } else
                         Toast.makeText(this, "请输入有效数据!", Toast.LENGTH_SHORT)
@@ -96,7 +96,10 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
                 bt.setContentView(v1)
                 bt.show()
 
-                val animal = ObjectAnimator.ofFloat(mContent_FB_Add, "translationY", 200f)
+
+                val dp = resources.displayMetrics.heightPixels / resources.displayMetrics.densityDpi * 55f
+
+                val animal = ObjectAnimator.ofFloat(mContent_FB_Add, "translationY", dp)
                 animal.interpolator = DecelerateInterpolator()
                 animal.duration = 200
                 animal.start()

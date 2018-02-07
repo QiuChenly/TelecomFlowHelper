@@ -45,7 +45,8 @@ public class DB extends SQLiteOpenHelper {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "phoneNum TEXT NOT NULL," +
                 "phonePass TEXT NOT NULL," +
-                "loginSession TEXT);";
+                "loginSession TEXT," +
+                "areaCode TEXT);";
         db.execSQL(exec);
     }
 
@@ -61,6 +62,11 @@ public class DB extends SQLiteOpenHelper {
 
     }
 
+    public void saveSession(String num, String session, String areaCode) {
+        String exec = "update " + NUMLIST + " set loginSession = '" + session + "',areaCode = '" + areaCode + "' where phoneNum='" + num + "';";
+        getWritableDatabase().execSQL(exec);
+    }
+
     public ArrayList<DB_PhoneInfoBean> AllPhone() {
         ArrayList<DB_PhoneInfoBean> array = new ArrayList<>();
         String exec = "select * from " + NUMLIST;
@@ -73,7 +79,8 @@ public class DB extends SQLiteOpenHelper {
                 DB_PhoneInfoBean a = new DB_PhoneInfoBean();
                 a.user = cursor.getString(1);
                 a.pass = cursor.getString(2);
-                a.session = cursor.getString(3);
+                a.token = cursor.getString(3);
+                a.areaCode = cursor.getString(4);
                 array.add(a);
                 if (cursor.isLast()) {
                     break;

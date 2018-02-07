@@ -68,14 +68,14 @@
                 android:id="@+id/mItemList_NumList_Acur"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="话费:本月消费 800 元,剩余 -900 元"
+                android:text="话费:暂无数据"
                 android:textColor="#424242" />
 
             <TextView
-                android:id="@+id/mItemList_NumList_LiuLiang"
+                android:id="@+id/mItemList_NumList_Flow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="流量:本月共 800 GB,剩余 -100 GB"
+                android:text="流量:暂无数据"
                 android:textColor="#424242" />
         </LinearLayout>
 

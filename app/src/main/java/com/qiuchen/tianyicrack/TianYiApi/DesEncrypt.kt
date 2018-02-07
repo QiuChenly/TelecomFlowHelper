@@ -14,9 +14,9 @@ class DesEncrypt {
 
     constructor(useTY: Boolean = false) {
         if (useTY)
-            initKey(defaultKey)
-        else
             initKey(encryptKey)
+        else
+            initKey(defaultKey)
 
     }
 

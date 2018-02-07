@@ -1,5 +1,7 @@
 package com.qiuchen.tianyicrack.Base
 
+import android.content.Context
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -18,7 +20,7 @@ abstract class BaseApp : AppCompatActivity(), View.OnClickListener {
         setContentView(mViewParams.layout)
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE), 1)
+            requestPermissions(arrayOf(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.ACCESS_NETWORK_STATE), 1)
         } else
             onInit()
     }
