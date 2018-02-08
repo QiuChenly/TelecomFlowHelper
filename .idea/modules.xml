@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/myapplication/myapplication.iml" filepath="$PROJECT_DIR$/myapplication/myapplication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CrackTianYi/CrackTianYi.iml" filepath="$PROJECT_DIR$/CrackTianYi/CrackTianYi.iml" />
       <module fileurl="file://$PROJECT_DIR$/tianYiCrack.iml" filepath="$PROJECT_DIR$/tianYiCrack.iml" />
     </modules>
   </component>

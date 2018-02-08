@@ -159,21 +159,22 @@ open class nHttp(ret: nHttpRet) {
             for (rh in RequestHeader.entries) {
                 urlConn.setRequestProperty(rh.key, rh.value)
             }
-            urlConn.doInput = true
-            if (urlConn.requestMethod === METHOD_POST) {
-                urlConn.doOutput = true
-                urlConn.outputStream.write(data)
-            }
-            if (nCook != null) {
-                nCook?.addAll(getCookies(urlConn))
-            }
             //修正连接超时导致闪退的BUG
             var code = -555
-            try {
+            return try {
+                urlConn.doInput = true
+                if (urlConn.requestMethod === METHOD_POST) {
+                    urlConn.doOutput = true
+                    urlConn.outputStream.write(data)
+                }
+                if (nCook != null) {
+                    nCook?.addAll(getCookies(urlConn))
+                }
                 code = urlConn.responseCode
+                nHttpRet(code, getBytes(urlConn.inputStream), urlConn.headerFields)
             } catch (e: Exception) {
+                nHttpRet(code, kotlin.ByteArray(1024), HashMap())
             }
-            return nHttpRet(code, getBytes(urlConn.inputStream), urlConn.headerFields)
         }
 
         //异步请求方法

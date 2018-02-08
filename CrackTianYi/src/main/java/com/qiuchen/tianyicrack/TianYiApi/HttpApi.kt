@@ -161,4 +161,26 @@ class HttpApi {
             }
         }
     }
+
+    /**
+     * 获取所有流量快递的信息
+     * @param num 手机号码
+     * @param areaCode 手机号码
+     * @param token 手机号码
+     * @return XMETHOD请求
+     */
+    fun Build_GetAllFlowExpressInfo(num: String, areaCode: String, token: String) = XMethod().apply {
+        this.url = "http://61.160.137.141/jszt/flowSend/getFlowInfo"
+        this.data = getData("userPhone=$num;accNbr=$num;myWin=;myGet=G;actionCode=jsztActionCode_flowSendgetFlowInfo;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=$token;")
+    }
+
+    /**
+     * 获取本月所有账单
+     */
+    fun Build_GetZhangDan(num: String, areaCode: String, token: String)=XMethod().apply {
+        url="http://61.160.137.141/jszt/uniformity/searchZhangDan"
+        val dccBillingCycle = Calendar.getInstance().get(Calendar.YEAR).toString() + Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+        this.data = getData("dccBillingCycle=$dccBillingCycle;dccDestinationAttr=2;accNbr=$num;areaCode=$areaCode;actionCode=jsztActionCode_uniformitysearchZhangDan;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=$token;")
+    }
+
 }
