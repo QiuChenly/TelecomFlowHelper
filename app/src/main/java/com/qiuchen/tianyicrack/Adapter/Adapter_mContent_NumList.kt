@@ -24,10 +24,14 @@ import com.qiuchen.tianyicrack.mSContext
 class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
                                val rv: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener {
 
+    fun hasPhone(string: String): Boolean {
+        return mList.any { it.user == string }
+    }
+
     internal var touchListener: View.OnTouchListener = View.OnTouchListener { view, motionEvent ->
         when (motionEvent.action) {
             MotionEvent.ACTION_DOWN -> {
-                val upAnim = ObjectAnimator.ofFloat(view, "translationZ", 0f)
+                val upAnim = ObjectAnimator.ofFloat(view, "translationZ", -1f)
                 upAnim.duration = 200
                 upAnim.interpolator = DecelerateInterpolator()
                 upAnim.start()
@@ -95,16 +99,17 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
             val tv_OnlineState: TextView = findViewById(R.id.mItemList_NumList_OnlineState)
             val iv: ImageView = findViewById(R.id.mItemList_NumList_OnlineStateBack)
             var mID = R.drawable.user_offline
-            if (mList[position].token != null) {
+            if (mList[position].token != null && mList[position].token != "") {
+                mID = R.drawable.user_online
                 tv_OnlineState.text = "已登录(Session本地保存,正在尝试刷新数据...)"
                 if (!mSContext.hasNet()) {
                     tv_OnlineState.text = "已登录(无网络连接!请联网后下拉刷新!)"
                 } else {
-                    mID = R.drawable.user_online
                     presenter.loginSingle(mList[position], object : presenter.Companion.refreshCallback {
                         override fun onFlashed() {
                             val info = presenter.userList[mList[position].user]
                             if (info != null) {
+                                mID = R.drawable.user_online
                                 val tv_UserName = findViewById<TextView>(R.id.mItemList_NumList_UserName)
                                 tv_UserName.text = info.customerName
                                 val tv_Bill: TextView = findViewById(R.id.mItemList_NumList_Acur)
@@ -113,9 +118,14 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
                                 tv_FlowInfo.text = "流量:本月共 ${info.flowInfo.totalFlow} MB,剩余 ${info.flowInfo.leftFlow} MB"
                                 tv_OnlineState.text = "已登录(刷新数据成功!)"
                             } else {
-                                tv_OnlineState.text = "已登录(刷新数据失败,请点击登录试试.)"
+                                //解决重复刷新登录失败掉线账号的问题
+                                mList[position].token = ""
+                                presenter.mDB.saveSession(mList[position].user, "", "")
+                                mID = R.drawable.user_offline
+                                tv_OnlineState.text = "离线(疑似在官方客户端登录,请点击重新登录.)"
                                 this@with.setOnClickListener(this@Adapter_mContent_NumList)
                             }
+                            iv.setImageDrawable(mSContext.getCtx().getDrawable(mID))
                         }
                     })
                 }

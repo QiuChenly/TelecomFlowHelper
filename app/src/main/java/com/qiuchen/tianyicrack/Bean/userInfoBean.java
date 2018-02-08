@@ -1,7 +1,5 @@
 package com.qiuchen.tianyicrack.Bean;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
 /**

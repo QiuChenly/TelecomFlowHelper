@@ -44,9 +44,7 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
         val views = arrayOf(R.layout.layout_oneplus)
         mList = ArrayList<View>()
         views.mapTo(mList) { LayoutInflater.from(this).inflate(it, null) }
-
         mContent_VP.adapter = Adapter_ContentVP(mList)
-
         onPageChanges = onPageChange(this)
         mContent_VP.addOnPageChangeListener(onPageChanges)
         onPageChanges.onPageSelected(0)
@@ -75,14 +73,18 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
                 add.setOnClickListener({
                     val users = user.text.toString()
                     val passs = pass.text.toString()
-                    if (users.isNotEmpty() && passs.isNotEmpty()) {
-                        val d = DB_PhoneInfoBean()
-                        d.user = users
-                        d.pass = passs
+                    if (users.isNotEmpty() && passs.isNotEmpty() && users.length == 13 && passs.length == 6) {
                         val element = onPageChanges.getViewHelper(position = 0) as onePlus
-                        element.addElement(d)
-                        mSContext.getDB().addPhone(users, passs)
-                        bt.cancel()
+                        if (element.hasPhone(users))
+                            Toast.makeText(this, "此手机号已存在于本地中!请输入其他手机号!", Toast.LENGTH_SHORT).show()
+                        else {
+                            val d = DB_PhoneInfoBean()
+                            d.user = users
+                            d.pass = passs
+                            element.addElement(d)
+                            mSContext.getDB().addPhone(users, passs)
+                            bt.cancel()
+                        }
                     } else
                         Toast.makeText(this, "请输入有效数据!", Toast.LENGTH_SHORT)
                                 .show()
@@ -95,16 +97,12 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
                 }
                 bt.setContentView(v1)
                 bt.show()
-
-
                 val dp = resources.displayMetrics.heightPixels / resources.displayMetrics.densityDpi * 55f
-
                 val animal = ObjectAnimator.ofFloat(mContent_FB_Add, "translationY", dp)
                 animal.interpolator = DecelerateInterpolator()
                 animal.duration = 200
                 animal.start()
             }
         }
-
     }
 }

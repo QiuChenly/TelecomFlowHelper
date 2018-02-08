@@ -12,13 +12,6 @@ import com.qiuchen.tianyicrack.Presenter.DB;
 
 public class mSContext extends Application {
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        ctx = getApplicationContext();
-        mDB = new DB(getApplicationContext(), "QIUCHENDB", null, 1);
-    }
-
     private static Context ctx;
     private static DB mDB;
 
@@ -36,5 +29,12 @@ public class mSContext extends Application {
             return conn.getActiveNetworkInfo() != null && conn.getActiveNetworkInfo().isAvailable();
         }
         return false;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        ctx = getApplicationContext();
+        mDB = new DB(getApplicationContext(), "QIUCHENDB", null, 1);
     }
 }

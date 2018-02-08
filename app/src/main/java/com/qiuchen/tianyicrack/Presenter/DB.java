@@ -14,6 +14,18 @@ import java.util.ArrayList;
  */
 
 public class DB extends SQLiteOpenHelper {
+    /**
+     * 字段设计:
+     * 表名称: mDB_NumList
+     * 字段:
+     * id int
+     * phoneNum TEXT 手机号码
+     * phonePass TEXT 手机号码服务密码
+     * loginSession TEXT 二次登录用的鉴权Session
+     */
+
+    private static String NUMLIST = "mDB_List";
+
     public DB(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
@@ -27,18 +39,6 @@ public class DB extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
-
-    /**
-     * 字段设计:
-     * 表名称: mDB_NumList
-     * 字段:
-     * id int
-     * phoneNum TEXT 手机号码
-     * phonePass TEXT 手机号码服务密码
-     * loginSession TEXT 二次登录用的鉴权Session
-     */
-
-    private static String NUMLIST = "mDB_List";
 
     private void initDB(SQLiteDatabase db) {
         String exec = "create table if not exists " + NUMLIST + "(" +
@@ -54,6 +54,15 @@ public class DB extends SQLiteOpenHelper {
         String exec = "insert into " + NUMLIST + "(phoneNum,phonePass)" +
                 "values('" + num + "','" + pass + "');";
         this.getWritableDatabase().execSQL(exec);
+    }
+
+    public String getNumPass(String num) {
+        String exec = "select phonePass from " + NUMLIST + " where phoneNum = '" + num + "';";
+        Cursor cursor = getReadableDatabase().rawQuery(exec, null);
+        if (cursor.moveToFirst()) {
+            return cursor.getString(0);
+        }
+        return "";
     }
 
     public void removePhone(String num) {

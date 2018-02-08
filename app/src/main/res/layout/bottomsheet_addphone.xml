@@ -7,7 +7,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#424242">
+        android:background="#42a5f5">
 
         <TextView
             android:layout_width="match_parent"
@@ -15,16 +15,16 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="增加新成员"
-            android:textColor="#ffffff"
+            android:textColor="#000000"
             android:textSize="18dp" />
     </LinearLayout>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_marginTop="15dp"
         android:layout_height="match_parent"
         android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp">
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/mAdd_user"
@@ -58,11 +58,44 @@
         android:id="@+id/mAdd_add"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        android:foreground="?attr/selectableItemBackground"
         android:background="#42a5f5"
-        android:layout_marginBottom="15dp"
+        android:foreground="?attr/selectableItemBackground"
         android:text="添加成员" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:text="Tips:只能输入之前未保存过的手机账户.输入完成后,点击 [添加成员] 即可增加新账户." />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:text="          账户在本APP登录成功后,请尽量不在官方App天翼生活中登录,会造成账户掉线导致无法继续查询,需要重新手动登录." />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:text="秋城落叶" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:gravity="center"
+        android:layout_marginBottom="50dp"
+        android:text="Copyright©2017-2018" />
 
 </LinearLayout>

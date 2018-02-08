@@ -14,9 +14,9 @@ import java.nio.charset.Charset
 class presenter {
     companion object {
         private lateinit var loginResult: loginCallback
-        val userList: HashMap<String, mBaseInfoCollection> = HashMap()
+        val userList: HashMap<String, mBaseInfoCollection?> = HashMap()
         val hand = Handler(getMainLooper())
-        private val mDB = mSContext.getDB()
+        val mDB = mSContext.getDB()
 
         fun login(user: String, pass: String, cb: loginCB) {
             if (!mSContext.hasNet()) {
@@ -52,11 +52,16 @@ class presenter {
             }.start()
         }
 
+        /**
+         * 弃用方法,数据绑定后自动刷新,此方法不再生效
+         * @param refreshCallback 刷新成功回调
+         * @return 异步方法,不返回任何数据.
+         */
         fun refreshOnlineInfo(refreshCallback: refreshCallback) {
             Thread {
                 kotlin.run {
                     for (a in userList) {
-                        val s = a.value
+                        val s = a.value!!
                         userList[a.key] = getBaseInfo(s.token, s.areaCode, s.phoneNum)
                     }
                     hand.post {
@@ -67,7 +72,7 @@ class presenter {
         }
 
         interface refreshCallback {
-            fun onFlashed();
+            fun onFlashed()
         }
 
 
@@ -78,13 +83,15 @@ class presenter {
          * @param phone 手机号码
          * @return 返回基本信息集合
          */
-        fun getBaseInfo(token: String, areaCode: String, phone: String): mBaseInfoCollection {
+        fun getBaseInfo(token: String, areaCode: String, phone: String): mBaseInfoCollection? {
             val mBaseInfoCollection = mBaseInfoCollection()
             //登录成功,开始获取用户基本数据
             var s = HttpApi().exec(HttpApi.Build_login2UserInfo(token, areaCode, phone).get())
             var str = ""
             if (s.getStatusCode() == 200) {
                 str = s.toString(Charset.defaultCharset())
+                //{"TSR_RESULT":"110001","TSR_MSG":"鉴权不通过，请重新登录"}
+                if (str.contains("110001")) return null
                 str = str.substring(5, str.length - 1)
                 val userInfo = Gson().fromJson(str, userInfoBean::class.java)
                 mBaseInfoCollection.areaCode = userInfo.areaCode

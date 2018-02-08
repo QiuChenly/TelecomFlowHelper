@@ -46,9 +46,9 @@ class onePlus(val v: View) : BasePageView(v), SwipeRefreshLayout.OnRefreshListen
         mContent_NumList.itemAnimator = DefaultItemAnimator()
         mContent_NumList.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect?, view: View?, parent: RecyclerView?, state: RecyclerView.State?) {
-                outRect?.left = 10
-                outRect?.right = 10
-                outRect?.bottom = 0
+                outRect?.left = 15
+                outRect?.right = 15
+                outRect?.bottom = 10
                 outRect?.top = 10
             }
         })
@@ -58,6 +58,10 @@ class onePlus(val v: View) : BasePageView(v), SwipeRefreshLayout.OnRefreshListen
 
     fun addElement(db: DB_PhoneInfoBean) {
         numList_Adapter.addItem(db)
+    }
+
+    fun hasPhone(string: String): Boolean {
+        return numList_Adapter.hasPhone(string)
     }
 
     fun refreshAllUser() {

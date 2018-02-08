@@ -37,7 +37,11 @@ public class mBaseInfoCollection {
     /**
      * 子区域代码,目前用不上
      */
-    childAreaCode;
+    childAreaCode,
+    /**
+     * 当前账号鉴权密码
+     */
+    passwd;
     /**
      * 流量信息
      */
