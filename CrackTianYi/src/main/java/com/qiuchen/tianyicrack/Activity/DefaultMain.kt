@@ -2,6 +2,8 @@ package com.qiuchen.tianyicrack.Activity
 
 import android.animation.ObjectAnimator
 import android.support.design.widget.BottomSheetDialog
+import android.support.v4.view.ViewPager
+import android.support.v7.widget.LinearLayoutManager
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -12,20 +14,57 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.qiuchen.tianyicrack.Adapter.Adapter_ContentVP
+import com.qiuchen.tianyicrack.Adapter.Adapter_NavigationRV
 import com.qiuchen.tianyicrack.Base.BaseApp
 import com.qiuchen.tianyicrack.Bean.DB_PhoneInfoBean
+import com.qiuchen.tianyicrack.Bean.NavigationListItem
 import com.qiuchen.tianyicrack.Other.onPageChange
 import com.qiuchen.tianyicrack.Other.onePlus
 import com.qiuchen.tianyicrack.R
 import com.qiuchen.tianyicrack.mSContext
 import kotlinx.android.synthetic.main.activity_content.*
 import kotlinx.android.synthetic.main.activity_default_main.*
+import kotlinx.android.synthetic.main.activity_navigation.*
 
 
-class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
+class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageChangeListener {
+    override fun onPageScrollStateChanged(state: Int) {
+
+    }
+
+    var fbHeight = 9999
+    var nowValue = 0f
+    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+        val h = mSContext.getCtx().resources.displayMetrics.heightPixels
+        val location: IntArray = kotlin.IntArray(2)
+        mContent_FB_Add.getLocationInWindow(location)
+        if (location[1] < fbHeight)
+            fbHeight = location[1]
+        if (position == 0) {
+            //获取百分比
+            var pcent = (positionOffset * 100).toInt().toFloat()
+            if (pcent == 99f) {
+                pcent = 100f
+            }
+            //小球滚动
+            val y = ((h - fbHeight) / 100f) * pcent
+            mContent_FB_Add.translationY = y
+            if (nowValue > positionOffset) {
+                //小球出现
+                println("正在返回第一页")
+            } else {
+                //小球消失
+                println("正在进入第二页")
+            }
+            nowValue = positionOffset
+        }
+    }
+
+    override fun onPageSelected(position: Int) {
+    }
 
 
-    override fun getViewss(position: Int): View {
+    override fun getView(position: Int): View {
         return mList[position]
     }
 
@@ -35,18 +74,35 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
         }
     }
 
-    lateinit var mList: ArrayList<View>
-    lateinit var onPageChanges: onPageChange
+    private lateinit var mList: ArrayList<View>
+    private lateinit var onPageChanges: onPageChange
     override fun onInit() {
         mContent_Menu.setOnClickListener(this)
         mContent_FB_Add.setOnClickListener(this)
 
-        val views = arrayOf(R.layout.layout_oneplus)
-        mList = ArrayList<View>()
+
+        val title = arrayListOf(NavigationListItem().apply {
+            this.mItemName = "AccountManager"
+        }, NavigationListItem().apply {
+            this.mItemName = "FlowManager"
+        })
+
+        mNavigation_List.layoutManager = LinearLayoutManager(this)
+        mNavigation_List.setHasFixedSize(true)
+        mNavigation_List.adapter = object : Adapter_NavigationRV(title) {
+            override fun itemOnClick(position: Int) {
+                mContent_VP.currentItem = position
+                mContent_DLayout.closeDrawer(Gravity.START)
+            }
+        }
+
+        val views = arrayOf(R.layout.layout_oneplus, R.layout.layout_flow_express_fuli)
+        mList = ArrayList()
         views.mapTo(mList) { LayoutInflater.from(this).inflate(it, null) }
         mContent_VP.adapter = Adapter_ContentVP(mList)
         onPageChanges = onPageChange(this)
         mContent_VP.addOnPageChangeListener(onPageChanges)
+        mContent_VP.addOnPageChangeListener(this)
         onPageChanges.onPageSelected(0)
     }
 
@@ -55,7 +111,6 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
             mContent_DLayout.closeDrawer(Gravity.START)
             return true
         }
-
         return super.onKeyDown(keyCode, event)
     }
 
@@ -73,7 +128,7 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
                 add.setOnClickListener({
                     val users = user.text.toString()
                     val passs = pass.text.toString()
-                    if (users.isNotEmpty() && passs.isNotEmpty() && users.length == 13 && passs.length == 6) {
+                    if (users.isNotEmpty() && passs.isNotEmpty() && users.length == 11 && passs.length == 6) {
                         val element = onPageChanges.getViewHelper(position = 0) as onePlus
                         if (element.hasPhone(users))
                             Toast.makeText(this, "此手机号已存在于本地中!请输入其他手机号!", Toast.LENGTH_SHORT).show()
@@ -96,12 +151,14 @@ class defaultMain : BaseApp(), onPageChange.PageChangeUtils {
                     animal.start()
                 }
                 bt.setContentView(v1)
-                bt.show()
-                val dp = resources.displayMetrics.heightPixels / resources.displayMetrics.densityDpi * 55f
+                val location: IntArray = kotlin.IntArray(2)
+                mContent_FB_Add.getLocationInWindow(location)
+                val dp = resources.displayMetrics.heightPixels - location[1] * 1f
                 val animal = ObjectAnimator.ofFloat(mContent_FB_Add, "translationY", dp)
                 animal.interpolator = DecelerateInterpolator()
                 animal.duration = 200
                 animal.start()
+                bt.show()
             }
         }
     }

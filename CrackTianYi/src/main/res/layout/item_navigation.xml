@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="?attr/actionBarSize"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:id="@+id/iv_navigation_item_image"
+            android:background="@drawable/ic_simple_item" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:id="@+id/iv_navigation_item_title"
+            android:layout_height="wrap_content"
+            android:textColor="#333333"
+            android:layout_gravity="center|left"
+            android:text="我是标题"
+            android:textSize="18dp" />
+    </FrameLayout>
+</LinearLayout>

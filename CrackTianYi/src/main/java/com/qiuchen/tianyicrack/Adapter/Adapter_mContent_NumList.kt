@@ -81,7 +81,7 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.item_numlist, parent, false)
-        return VH(v)
+        return BaseVH(v)
     }
 
     override fun getItemCount(): Int {
@@ -92,7 +92,7 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
         with(holder.itemView) {
             tag = position
             setOnTouchListener(touchListener)
-            if (mList[position].token == null)
+            if (mList[position].token == null||mList[position].token == "")
                 setOnClickListener(this@Adapter_mContent_NumList)
             (findViewById<TextView>(R.id.mItemList_NumList_Numbers)).text =
                     "号码:" + mList[position].user
@@ -140,6 +140,4 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
         mList.add(db)
         notifyItemInserted(mList.size - 1)
     }
-
-    class VH(v: View) : RecyclerView.ViewHolder(v)
 }

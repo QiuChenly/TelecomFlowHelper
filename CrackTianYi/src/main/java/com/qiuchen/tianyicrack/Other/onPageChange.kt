@@ -17,7 +17,7 @@ class onPageChange(val p: PageChangeUtils) : ViewPager.OnPageChangeListener {
     private val listMaps = HashMap<Int, BasePageView>()
 
     override fun onPageSelected(position: Int) {
-        val v = p.getViewss(position)
+        val v = p.getView(position)
         val state = listMap[position]
         if (state == null || state == false) {
             when (position) {
@@ -34,6 +34,6 @@ class onPageChange(val p: PageChangeUtils) : ViewPager.OnPageChangeListener {
     }
 
     interface PageChangeUtils {
-        fun getViewss(position: Int): View
+        fun getView(position: Int): View
     }
 }

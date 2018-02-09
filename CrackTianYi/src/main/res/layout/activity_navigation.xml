@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
+        android:layout_height="226dp"
         android:clickable="true"
-        android:foreground="?attr/selectableItemBackground"
-        android:layout_height="226dp">
+        android:foreground="?attr/selectableItemBackground">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@mipmap/navigationback"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:src="@mipmap/navigationback" />
 
         <View
             android:layout_width="match_parent"
@@ -21,4 +22,9 @@
             android:background="#53000000" />
 
     </FrameLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/mNavigation_List"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </LinearLayout>
