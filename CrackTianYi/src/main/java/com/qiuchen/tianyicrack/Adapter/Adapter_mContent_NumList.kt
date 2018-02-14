@@ -3,6 +3,7 @@ package com.qiuchen.tianyicrack.Adapter
 import android.animation.ObjectAnimator
 import android.os.Handler
 import android.os.Looper
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -10,8 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import com.qiuchen.tianyicrack.Bean.DB_PhoneInfoBean
 import com.qiuchen.tianyicrack.Bean.loginCallback
 import com.qiuchen.tianyicrack.Presenter.presenter
@@ -92,7 +92,61 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
         with(holder.itemView) {
             tag = position
             setOnTouchListener(touchListener)
-            if (mList[position].token == null||mList[position].token == "")
+            setOnLongClickListener {
+                val v = LayoutInflater.from(context)
+                        .inflate(R.layout.alert_contextalert, null)
+                val alert_deleteThisAccount: LinearLayout = v.findViewById(R.id.alert_deleteThisAccount)
+                val alert_ChangeThisAccount: LinearLayout = v.findViewById(R.id.alert_ChangeThisAccount)
+                val alert_FuckThisAccount: LinearLayout = v.findViewById(R.id.alert_FuckThisAccount)
+
+                val alertDialog = AlertDialog.Builder(this.context).create()
+                alert_deleteThisAccount.setOnClickListener {
+                    try {
+                        presenter.mDB.removePhone(mList[position].user)
+                        mList.removeAt(position)
+                        this@Adapter_mContent_NumList.notifyItemRemoved(position)
+                        this@Adapter_mContent_NumList.notifyItemRangeChanged(0, mList.size)
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "删除手机账户时发生未知错误!", Toast.LENGTH_SHORT)
+                                .show()
+                    }
+                    alertDialog.cancel()
+                }
+                alert_ChangeThisAccount.setOnClickListener {
+                    val changeDialog = AlertDialog.Builder(context).create()
+                    val changeView = LayoutInflater.from(context)
+                            .inflate(R.layout.alert_change_info, null)
+
+                    val user: EditText = changeView.findViewById(R.id.alert_newAccount)
+                    val pass: EditText = changeView.findViewById(R.id.alert_newAccountPass)
+                    val saveAccount = changeView.findViewById<Button>(R.id.alert_SaveAccountAndPass)
+                    val oldUser = mList[position].user
+                    val oldPass = mList[position].pass
+                    user.setText(oldUser)
+                    pass.setText(oldPass)
+                    saveAccount.setOnClickListener {
+                        val u = user.text.toString()
+                        val p = pass.text.toString()
+                        if (u.isNotEmpty() && p.isNotEmpty()) {
+                            presenter.mDB.updateAccount(oldUser, u, p)
+                            mList[position].user = u
+                            mList[position].pass = p
+                        }
+                        this@Adapter_mContent_NumList.notifyItemChanged(position)
+                        changeDialog.cancel()
+                    }
+                    presenter.mDB.saveSession(mList[position].user, "", "")
+                    changeDialog.setView(changeView)
+                    changeDialog.show()
+                    alertDialog.cancel()
+                }
+                alert_FuckThisAccount.setOnClickListener { alertDialog.cancel() }
+                alertDialog.setView(v)
+                alertDialog.show()
+                false
+            }
+
+            if (mList[position].token == null || mList[position].token == "")
                 setOnClickListener(this@Adapter_mContent_NumList)
             (findViewById<TextView>(R.id.mItemList_NumList_Numbers)).text =
                     "号码:" + mList[position].user

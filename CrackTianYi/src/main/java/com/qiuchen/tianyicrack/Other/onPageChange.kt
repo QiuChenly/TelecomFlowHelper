@@ -6,7 +6,7 @@ import android.view.View
 /**
  * Created by qiuchen on 2018/2/7.
  */
-class onPageChange(val p: PageChangeUtils) : ViewPager.OnPageChangeListener {
+abstract class onPageChange(val p: PageChangeUtils) : ViewPager.OnPageChangeListener {
     override fun onPageScrollStateChanged(state: Int) {
     }
 
@@ -22,12 +22,24 @@ class onPageChange(val p: PageChangeUtils) : ViewPager.OnPageChangeListener {
         if (state == null || state == false) {
             when (position) {
                 0 -> {
-                    listMaps[position] = onePlus(v)
+                    listMaps[position] = object : onePlus(v) {
+                        override fun onRecyclerViewScrolled(scrollState: Int) {
+                            onRecyclerViewScroll(scrollState)
+                        }
+                    }
+                }
+                1 -> {
+                    listMaps[position] = FlowFuLi(v)
+                }
+                2 -> {
+                    listMaps[position] = FlowOneKeyGet(v)
                 }
             }
             listMap[position] = true
         }
     }
+
+    abstract fun onRecyclerViewScroll(scrollState: Int)
 
     fun getViewHelper(position: Int): BasePageView? {
         return listMaps[position]

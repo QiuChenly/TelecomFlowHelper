@@ -68,7 +68,11 @@ public class DB extends SQLiteOpenHelper {
     public void removePhone(String num) {
         String exec = "delete from " + NUMLIST + " where phoneNum='" + num + "';";
         this.getWritableDatabase().execSQL(exec);
+    }
 
+    public void updateAccount(String oldAccount, String newUser, String newPass) {
+        String exec = "update " + NUMLIST + " set phoneNum = '" + newUser + "',phonePass = '" + newPass + "' where phoneNum = '" + oldAccount + "';";
+        getWritableDatabase().execSQL(exec);
     }
 
     public void saveSession(String num, String session, String areaCode) {

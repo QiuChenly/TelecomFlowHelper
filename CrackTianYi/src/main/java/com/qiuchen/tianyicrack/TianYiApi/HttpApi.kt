@@ -1,8 +1,13 @@
 package com.qiuchen.tianyicrack.TianYiApi
 
+import com.google.gson.Gson
 import com.qiuchen.jingyi.nativeHttp.nHttp
+import com.qiuchen.tianyicrack.Bean.FlowExpressOnlineBean
+import com.qiuchen.tianyicrack.Bean.FlowExpressUserInfo
+import java.nio.charset.Charset
 import java.security.MessageDigest
 import java.util.*
+import java.util.regex.Pattern
 
 /**
  * Created by qiuchen on 2018/2/6.
@@ -47,39 +52,97 @@ class HttpApi {
      */
     fun exec(X_Method: XMethod): nHttp {
         return nHttp.Builder(X_Method.url)
-                .setPostData(X_Method.data)
+                .setPostData(getData(X_Method.data))
                 .setRequestHeader("Accept-Charset: UTF-8\n" +
                         "Content-Type: application/x-www-form-urlencoded; charset=UTF-8\n" +
                         "User-Agent: Dalvik/9.5.0 (Linux; U; Android 9.0.1; iPhone 9S Build/LMY99Z)")
                 .Request()
     }
 
-    class Build_Login {
-        private val LOGIN_API = "http://ztmall.go189.cn/zt-login/login/innerAccount"
-        private var LOGIN_PARAMS = "accNbr=17777777777;password=123456;accNbrType=2000004;PWDType=-1;areaCode=;isAutomatic=N;actionCode=login037;channelCode_common=011028;pubAreaCode=025;pushUserId=android_86971802216375920180206115131956;coachUser=;userLogAccNbrType=2;userLogAccNbr=;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=undefined;"
-
-        private var phone = ""
-        private var ps: String = ""
-
-        fun setUser(num: String, pass: String): Build_Login {
-            phone = num
-            ps = pass
-            LOGIN_PARAMS = "accNbr=${phone};password=${ps};accNbrType=2000004;PWDType=-1;areaCode=;isAutomatic=N;actionCode=login037;channelCode_common=011028;pubAreaCode=025;pushUserId=android_${HttpApi.getAndroidID(phone)};coachUser=;userLogAccNbrType=2;userLogAccNbr=;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=undefined;"
-            //LOGIN_PARAMS="accNbr=17714602936;password=224365;accNbrType=2000004;PWDType=-1;areaCode=0515;isAutomatic=Y;actionCode=login037;channelCode_common=011028;pubAreaCode=0515;pushUserId=android_86971802216375920180206115131956;coachUser=;userLogAccNbrType=2;userLogAccNbr=;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=undefined;"
-            return this
+    /**
+     * 初始化流量快递分享网址信息
+     * @param string 网址
+     * @return 返回信息聚合
+     */
+    fun InitFlowExpressSharedInfo(string: String): FlowExpressOnlineBean {
+        //302
+        // http://wx.go189.cn/tysh/pages/yaoyiyao/receiveBigFLow3.html?ztInterSource=200777&platform=wap&rowId=1f3b35ea2cd740b892b99e6f5421f658&flowNumber=5120
+        val mFlowExpressOnline = FlowExpressOnlineBean()
+        val isWX = string.contains("wx.go189.cn")
+        val isZT = string.contains("http://url.cn")
+        var redirectUrl = string
+        if (!isWX && !isZT) mFlowExpressOnline.retCode = -1
+        mFlowExpressOnline.retCode = if (isWX) 0 else 1
+        if (isZT) {
+            //需要进行302跳转拿到关键信息
+            val s = nHttp.Builder(string)
+                    .setRequestHeader("Accept-Charset: UTF-8\n" +
+                            "Content-Type: application/x-www-form-urlencoded; charset=UTF-8\n" +
+                            "User-Agent: Dalvik/9.5.0 (Linux; U; Android 9.0.1; iPhone 9S Build/LMY99Z)")
+                    .Request()
+            if (s.getStatusCode() == 302) {
+                redirectUrl = s.getRedirectURL()!!
+            } else mFlowExpressOnline.retCode = -1
         }
 
-        fun get(): XMethod {
-            val m = XMethod()
-            m.url = LOGIN_API
-            m.data = getData(LOGIN_PARAMS)
-            return m
-        }
+        //开始匹配数据
+        //http://wx.go189.cn/tysh/pages/yaoyiyao/receiveBigFLow3.html?ztInterSource=200777&platform=wap&rowId=1f3b35ea2cd740b892b99e6f5421f658&flowNumber=5120
+        val p = Pattern.compile("ztInterSource=([0-9]{6,})&platform=wap&rowId=(.*?)&flowNumber=([0-9]{4,})")
+        val m = p.matcher(redirectUrl + "&")
+        if (m.find()) {
+            mFlowExpressOnline.flowSize = m.group(3)
+            mFlowExpressOnline.rowID = m.group(2)
+            mFlowExpressOnline.ztInterSource = m.group(1)
+        } else mFlowExpressOnline.retCode = -1
+
+        //开始初始化用户信息
+        val url = "http://wx.go189.cn/tysh/interface/doAjax.do"
+        val data = "url=http%3A%2F%2F61.160.137.141%2Fjszt%2FflowSend%2FflowAndTimesLeft&para=rowId%3D${mFlowExpressOnline.rowID}%3BactionCode%3DjsztActionCode_flowSendflowAndTimesLeft%3BchannelCode_common%3D200777%3BpubAreaCode%3D025%3BpushUserId%3Djszt_${System.currentTimeMillis()}%3BcoachUser%3D%3BuserLogAccNbrType%3D%3BuserLogAccNbr%3D%3BuserTokenAccNbrType%3D2%3BztVersion%3D3.1.0%3BztInterSource%3D${mFlowExpressOnline.ztInterSource}%3BpubToken%3Dundefined%3B"
+        val s = nHttp.Builder(url)
+                .setPostData(data)
+                .setRequestHeader("Accept-Charset: UTF-8\n" +
+                        "Content-Type: application/x-www-form-urlencoded; charset=UTF-8\n" +
+                        "User-Agent: Dalvik/9.5.0 (Linux; U; Android 9.0.1; iPhone 9S Build/LMY99Z)\n" +
+                        "X-Requested-With:XMLHttpRequest\n"
+                        + redirectUrl)
+                .Request()
+
+        if (s.getStatusCode() == 200) {
+            val g = Gson().fromJson(s.toString(Charset.defaultCharset()), FlowExpressUserInfo::class.java)
+            mFlowExpressOnline.mainNum = g.userPhoneEncrypt
+            mFlowExpressOnline.nickName = g.nickName
+            mFlowExpressOnline.lastBag = g.timesLeft
+        } else mFlowExpressOnline.retCode = -1
+        return mFlowExpressOnline
     }
 
-    /*获取账户余额
-["http://61.160.137.141/jszt/uniformity/searchCallBalanceReqWithCache",{"para":"accNbr=17714602936;areaCode=0515;dccQueryFlag=0;dccDestinationAttr=2;actionCode=jsztActionCode_uniformitysearchCallBalanceReqWithCache;channelCode_common=011028;pubAreaCode=0515;pushUserId=android_86971802216375920180206115131956;coachUser=;userLogAccNbrType=2;userLogAccNbr=17714602936;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=05ce0079846c4e518dd84ce197775e18;"}]
-*/
+
+    /**
+     * 领取流量 QiuChenly 2018.2.14
+     * @param num 手机号码
+     * @param rowID 礼包唯一编号
+     * @return 成功返回真,失败返回假
+     */
+    fun Build_GetFlowByUser(num: String, rowID: String): Boolean {
+        val a = nHttp.Builder("http://wx.go189.cn/tysh/interface/doAjax.do")
+                .setPostData("url=http%3A%2F%2F61.160.137.141%2Fjszt%2FflowSend%2FsendDelivery&para=rowId%3D$rowID%3BaccNbr%3D$num%3Bconfirm%3DN%3BsendType%3D0%3BactionCode%3DjsztActionCode_flowSendsendDelivery%3BchannelCode_common%3D200777%3BpubAreaCode%3D025%3BpushUserId%3Djszt_660977987262%3BcoachUser%3D%3BuserLogAccNbrType%3D%3BuserLogAccNbr%3D%3BuserTokenAccNbrType%3D2%3BztVersion%3D3.1.0%3BztInterSource%3D200777%3BpubToken%3Dundefined%3B")
+                .setRequestHeader("Accept-Charset: UTF-8\n" +
+                        "Content-Type: application/x-www-form-urlencoded; charset=UTF-8\n" +
+                        "User-Agent: Dalvik/9.5.0 (Linux; U; Android 9.0.1; iPhone 9S Build/LMY99Z)\n" +
+                        "X-Requested-With:XMLHttpRequest")
+                .Request()
+        val ret = a.toString(Charset.defaultCharset())
+        return ret.contains("领取成功")
+    }
+
+    /**
+     * 获取登录接口信息
+     */
+    fun Build_Login(num: String, pass: String) = XMethod().apply {
+        url = "http://ztmall.go189.cn/zt-login/login/innerAccount"
+        data = "accNbr=$num;password=$pass;accNbrType=2000004;PWDType=-1;areaCode=;isAutomatic=N;actionCode=login037;channelCode_common=011028;pubAreaCode=025;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=;userTokenAccNbrType=2;ztVersion=5.0.0;ztInterSource=android;pubToken=undefined;"
+    }
+
     /**
      * 获取账户余额
      * @param num 手机号码
@@ -89,15 +152,9 @@ class HttpApi {
      */
     fun Build_searchCallBalanceReqWithCache(num: String, areaCode: String, token: String) = XMethod().apply {
         this.url = "http://61.160.137.141/jszt/uniformity/searchCallBalanceReqWithCache"
-        this.data = getData("accNbr=$num;areaCode=$areaCode;dccQueryFlag=0;dccDestinationAttr=2;actionCode=jsztActionCode_uniformitysearchCallBalanceReqWithCache;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=$token;")
+        this.data = "accNbr=$num;areaCode=$areaCode;dccQueryFlag=0;dccDestinationAttr=2;actionCode=jsztActionCode_uniformitysearchCallBalanceReqWithCache;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=5.0.0;ztInterSource=android;pubToken=$token;"
     }
 
-/*
-获取本月已用话费
-["http://61.160.137.141/jszt/uniformity/searchCallCurrMonthBillReqWithCache",{"para":"dccBillingCycle=201802;productId=2;accNbr=17714602936;areaCode=0515;actionCode=jsztActionCode_uniformitysearchCallCurrMonthBillReqWithCache;channelCode_common=011028;pubAreaCode=0515;pushUserId=android_86971802216375920180206115131956;coachUser=;userLogAccNbrType=2;userLogAccNbr=17714602936;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=05ce0079846c4e518dd84ce197775e18;"}]
-
-
-*/
     /**
      * 获取本月已用话费
      * @param num 手机号码
@@ -108,13 +165,8 @@ class HttpApi {
     fun Build_GetTotalUsedBill(num: String, areaCode: String, token: String) = XMethod().apply {
         this.url = "http://61.160.137.141/jszt/uniformity/searchCallCurrMonthBillReqWithCache"
         val dccBillingCycle = Calendar.getInstance().get(Calendar.YEAR).toString() + Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-        this.data = getData("dccBillingCycle=$dccBillingCycle;productId=2;accNbr=$num;areaCode=$areaCode;actionCode=jsztActionCode_uniformitysearchCallCurrMonthBillReqWithCache;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=$token;")
+        this.data = "dccBillingCycle=$dccBillingCycle;productId=2;accNbr=$num;areaCode=$areaCode;actionCode=jsztActionCode_uniformitysearchCallCurrMonthBillReqWithCache;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=5.0.0;ztInterSource=android;pubToken=$token;"
     }
-
-    /*
-     * 获取账户剩余流量信息
-    ["http://61.160.137.141/jszt/uniformity/searchCurrAcuReqWithCache",{"para":"accNbr=17714602936;family=2;areaCode=0515;actionCode=jsztActionCode_uniformitysearchCurrAcuReqWithCache;channelCode_common=011028;pubAreaCode=0515;pushUserId=android_86971802216375920180206115131956;coachUser=;userLogAccNbrType=2;userLogAccNbr=17714602936;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=05ce0079846c4e518dd84ce197775e18;"}]
-     */
 
     /**
      * 获取账户剩余流量信息
@@ -123,23 +175,11 @@ class HttpApi {
      * @param token 手机号码
      * @return XMETHOD请求
      */
-    class Build_GetTotalAcu(token: String, areaCode: String, num: String) {
-        private val mUrl = "http://61.160.137.141/jszt/uniformity/searchCurrAcuReqWithCache"
-        private var para = "accNbr=$num;family=2;areaCode=$areaCode;actionCode=jsztActionCode_uniformitysearchCurrAcuReqWithCache;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=$token;"
+    fun Build_GetTotalAcu(token: String, areaCode: String, num: String) = XMethod().apply {
+        url = "http://61.160.137.141/jszt/uniformity/searchCurrAcuReqWithCache"
+        data = "accNbr=$num;family=2;areaCode=$areaCode;actionCode=jsztActionCode_uniformitysearchCurrAcuReqWithCache;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=5.0.0;ztInterSource=android;pubToken=$token;"
 
-        fun get(): XMethod {
-            return XMethod().apply {
-                this.url = mUrl
-                this.data = getData(para)
-            }
-        }
     }
-
-
-    /*
-    获取手机号码用户信息
-["http://61.160.137.141/jszt/rest/login2UserInfo",{"para":"accNbr=17714602936;accNbrType=2000004;PWDType=-1;areaCode=0515;actionCode=yw013;channelCode_common=011028;pubAreaCode=0515;pushUserId=android_86971802216375920180206115131956;coachUser=;userLogAccNbrType=2;userLogAccNbr=17714602936;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=ff6ea6e0c6654c0a80ea585f7538d192;"}]
-     */
 
     /**
      * 获取手机号码用户信息
@@ -150,37 +190,24 @@ class HttpApi {
      *
      *
      */
-    class Build_login2UserInfo(token: String, areaCode: String, num: String) {
-        private val mUrl = "http://61.160.137.141/jszt/rest/login2UserInfo"
-        private var para = "accNbr=$num;accNbrType=2000004;PWDType=-1;areaCode=$areaCode;actionCode=yw013;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=$token;"
-        fun get(): XMethod {
-//            null({"managerAccount":"0","mobileInfo":[{"prodId":"152287363266","mobileNum":"17714602936"}],"iTVInfo":[],"broadbandInfo":[],"phoneInfo":[],"xltInfo":[],"c+wInfo":[],"smState":"0","state34G":"1","zqState":"1","customerName":"陈春","indentNbr":"320924197212102954","indentNbrType":"1","accNbr":"17714602936","areaCode":"0515","childAreaCode":"39","payMethod":"1","TSR_RESULT":"0","TSR_CODE":"0000","TSR_MSG":"","token":"c8ce46cdb22044aca0681db000a5a7ad","cacheState":"0","JSZT_MEMCACHED_STATUS":"1"})
-            return XMethod().apply {
-                this.url = mUrl
-                this.data = getData(para)
-            }
-        }
+    fun Build_login2UserInfo(token: String, areaCode: String, num: String) = XMethod().apply {
+        this.url = "http://61.160.137.141/jszt/rest/login2UserInfo"
+        this.data = "accNbr=$num;accNbrType=2000004;PWDType=-1;areaCode=$areaCode;actionCode=yw013;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=5.0.0;ztInterSource=android;pubToken=$token;"
     }
 
-    /**
-     * 获取所有流量快递的信息
-     * @param num 手机号码
-     * @param areaCode 手机号码
-     * @param token 手机号码
-     * @return XMETHOD请求
-     */
-    fun Build_GetAllFlowExpressInfo(num: String, areaCode: String, token: String) = XMethod().apply {
-        this.url = "http://61.160.137.141/jszt/flowSend/getFlowInfo"
-        this.data = getData("userPhone=$num;accNbr=$num;myWin=;myGet=G;actionCode=jsztActionCode_flowSendgetFlowInfo;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=$token;")
-    }
 
     /**
      * 获取本月所有账单
      */
-    fun Build_GetZhangDan(num: String, areaCode: String, token: String)=XMethod().apply {
-        url="http://61.160.137.141/jszt/uniformity/searchZhangDan"
+    fun Build_GetZhangDan(num: String, areaCode: String, token: String) = XMethod().apply {
+        url = "http://61.160.137.141/jszt/uniformity/searchZhangDan"
         val dccBillingCycle = Calendar.getInstance().get(Calendar.YEAR).toString() + Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-        this.data = getData("dccBillingCycle=$dccBillingCycle;dccDestinationAttr=2;accNbr=$num;areaCode=$areaCode;actionCode=jsztActionCode_uniformitysearchZhangDan;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=4.5.0;ztInterSource=android;pubToken=$token;")
+        this.data = "dccBillingCycle=$dccBillingCycle;dccDestinationAttr=2;accNbr=$num;areaCode=$areaCode;actionCode=jsztActionCode_uniformitysearchZhangDan;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(num)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$num;userTokenAccNbrType=2;ztVersion=5.0.0;ztInterSource=android;pubToken=$token;"
     }
+
+    //interface invoke: request:(url=http://61.160.137.141/jszt/flowSend/flowAndTimesLeft;param=rowId=1f3b35ea2cd740b892b99e6f5421f658;actionCode=jsztActionCode_flowSendflowAndTimesLeft;channelCode_common=200777;pubAreaCode=025;pushUserId=jszt_660977987262;coachUser=;userLogAccNbrType=;userLogAccNbr=;userTokenAccNbrType=2;ztVersion=3.1.0;ztInterSource=200777;pubToken=undefined;);response({"TSR_RESULT":"0","TSR_MSG":"成功","flowLeft":1024,"timesLeft":1,"robTimes":4,"userPhoneEncrypt":"180※※※※8619","nickName":"这只羊咩咩"})
+
+//{"retCode":0,"nickName":"这只羊咩咩","mainNum":"189※※※※1626","flowSize":"5120","rowID":"9677b05607494f5786a327a92f6e3a82","ztInterSource":"200777","lastBag":4}
+
 
 }

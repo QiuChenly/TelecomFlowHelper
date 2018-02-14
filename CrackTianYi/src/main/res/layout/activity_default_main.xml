@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mContent_DLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -19,7 +20,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_marginTop="26dp"
-                app:contentInsetStart="0dp">
+                app:contentInsetStart="0dp"
+                android:id="@+id/mToolbar">
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -42,22 +44,37 @@
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_gravity="center"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:text="FUCK China-Telecom"
                         android:textColor="#ffffff" />
+
                 </FrameLayout>
 
 
             </android.support.v7.widget.Toolbar>
         </android.support.design.widget.AppBarLayout>
 
-
-        <include
-            layout="@layout/activity_content"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/mContent_VP"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </RelativeLayout>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/mContent_FB_Add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_margin="20dp"
+            android:clickable="true"
+            app:srcCompat="@drawable/ic_add_black_24dp"
+            tools:ignore="VectorDrawableCompat" />
     </android.support.design.widget.CoordinatorLayout>
 
 

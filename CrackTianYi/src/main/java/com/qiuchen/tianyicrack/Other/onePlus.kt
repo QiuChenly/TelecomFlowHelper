@@ -16,7 +16,7 @@ import com.qiuchen.tianyicrack.mSContext
 /**
  * Created by qiuchen on 2018/2/7.
  */
-class onePlus(val v: View) : BasePageView(v), SwipeRefreshLayout.OnRefreshListener, presenter.Companion.refreshCallback {
+abstract class onePlus(val v: View) : BasePageView(v), SwipeRefreshLayout.OnRefreshListener, presenter.Companion.refreshCallback {
     override fun onFlashed() {
         if (mContent_SwipeLayout.isRefreshing)
             mContent_SwipeLayout.isRefreshing = false
@@ -52,9 +52,32 @@ class onePlus(val v: View) : BasePageView(v), SwipeRefreshLayout.OnRefreshListen
                 outRect?.top = 10
             }
         })
+        mContent_NumList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                if (dy < 0 && !stateUP) {
+                    stateUP = true
+                    stateDown = false
+                    onRecyclerViewScrolled(1)
+                } else if (dy > 0 && !stateDown) {
+                    stateDown = true
+                    stateUP = false
+                    onRecyclerViewScrolled(0)
+                }
+            }
+        })
         numList_Adapter = Adapter_mContent_NumList(mSContext.getDB().AllPhone(), mContent_NumList)
         mContent_NumList.adapter = numList_Adapter
     }
+
+    var stateUP = false
+    var stateDown = false
+
+
+    /**
+     * 触发滑动事件
+     * @param scrollState  upScroll = 1 downScroll = 0
+     */
+    abstract fun onRecyclerViewScrolled(scrollState: Int)
 
     fun addElement(db: DB_PhoneInfoBean) {
         numList_Adapter.addItem(db)

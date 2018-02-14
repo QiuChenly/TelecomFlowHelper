@@ -22,7 +22,6 @@ import com.qiuchen.tianyicrack.Other.onPageChange
 import com.qiuchen.tianyicrack.Other.onePlus
 import com.qiuchen.tianyicrack.R
 import com.qiuchen.tianyicrack.mSContext
-import kotlinx.android.synthetic.main.activity_content.*
 import kotlinx.android.synthetic.main.activity_default_main.*
 import kotlinx.android.synthetic.main.activity_navigation.*
 
@@ -43,7 +42,7 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
         if (position == 0) {
             //获取百分比
             var pcent = (positionOffset * 100).toInt().toFloat()
-            if (pcent == 99f) {
+            if (pcent >= 90f) {
                 pcent = 100f
             }
             //小球滚动
@@ -51,10 +50,10 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
             mContent_FB_Add.translationY = y
             if (nowValue > positionOffset) {
                 //小球出现
-                println("正在返回第一页")
+//                println("正在返回第一页")
             } else {
                 //小球消失
-                println("正在进入第二页")
+//                println("正在进入第二页")
             }
             nowValue = positionOffset
         }
@@ -62,7 +61,6 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
 
     override fun onPageSelected(position: Int) {
     }
-
 
     override fun getView(position: Int): View {
         return mList[position]
@@ -82,9 +80,11 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
 
 
         val title = arrayListOf(NavigationListItem().apply {
-            this.mItemName = "AccountManager"
+            this.mItemName = "账户管理•AccountManager"
         }, NavigationListItem().apply {
-            this.mItemName = "FlowManager"
+            this.mItemName = "流量管理•FlowManager"
+        }, NavigationListItem().apply {
+            this.mItemName = "一键领取流量•OneKeyFlow"
         })
 
         mNavigation_List.layoutManager = LinearLayoutManager(this)
@@ -96,11 +96,19 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
             }
         }
 
-        val views = arrayOf(R.layout.layout_oneplus, R.layout.layout_flow_express_fuli)
+        val views = arrayOf(R.layout.layout_oneplus, R.layout.layout_flow_express_fuli, R.layout.layout_getflow)
         mList = ArrayList()
         views.mapTo(mList) { LayoutInflater.from(this).inflate(it, null) }
         mContent_VP.adapter = Adapter_ContentVP(mList)
-        onPageChanges = onPageChange(this)
+        onPageChanges = object : onPageChange(this) {
+            override fun onRecyclerViewScroll(scrollState: Int) {
+                if (scrollState == 1) {
+                    hideFB()
+                } else {
+                    showFB()
+                }
+            }
+        }
         mContent_VP.addOnPageChangeListener(onPageChanges)
         mContent_VP.addOnPageChangeListener(this)
         onPageChanges.onPageSelected(0)
@@ -144,22 +152,28 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
                         Toast.makeText(this, "请输入有效数据!", Toast.LENGTH_SHORT)
                                 .show()
                 })
-                bt.setOnCancelListener {
-                    val animal = ObjectAnimator.ofFloat(mContent_FB_Add, "translationY", 0f)
-                    animal.interpolator = AccelerateInterpolator()
-                    animal.duration = 200
-                    animal.start()
-                }
+                bt.setOnCancelListener { hideFB() }
                 bt.setContentView(v1)
-                val location: IntArray = kotlin.IntArray(2)
-                mContent_FB_Add.getLocationInWindow(location)
-                val dp = resources.displayMetrics.heightPixels - location[1] * 1f
-                val animal = ObjectAnimator.ofFloat(mContent_FB_Add, "translationY", dp)
-                animal.interpolator = DecelerateInterpolator()
-                animal.duration = 200
-                animal.start()
+                showFB()
                 bt.show()
             }
         }
+    }
+
+    fun showFB() {
+        val location: IntArray = kotlin.IntArray(2)
+        mContent_FB_Add.getLocationInWindow(location)
+        val dp = resources.displayMetrics.heightPixels - location[1] * 1f
+        val animal = ObjectAnimator.ofFloat(mContent_FB_Add, "translationY", dp)
+        animal.interpolator = DecelerateInterpolator()
+        animal.duration = 100
+        animal.start()
+    }
+
+    fun hideFB() {
+        val animal = ObjectAnimator.ofFloat(mContent_FB_Add, "translationY", 0f)
+        animal.interpolator = AccelerateInterpolator()
+        animal.duration = 100
+        animal.start()
     }
 }

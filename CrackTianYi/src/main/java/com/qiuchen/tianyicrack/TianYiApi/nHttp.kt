@@ -17,14 +17,15 @@ open class nHttp(ret: nHttpRet) {
     private var ret = ret
 
     /**
-     * 转换服务器返回的数据为字符串
+     * 转换服务器返回的数据为字符串,默认GBK,如需UTF-8请设为True
+     * 2018.2.12 V1.2 change reload function,native support for UTF-8
      */
-    override fun toString(): String {
-        return ret.RetByteArray.toString(Charset.forName("GBK"))
+    fun toString(isUTF8: Boolean): String {
+        return ret.RetByteArray.toString(if (isUTF8) Charset.forName("GBK") else Charset.defaultCharset())
     }
 
     /**
-     * 自定义编码格式,用于GB2312类型
+     * 自定义编码格式,用于GB2312/...更多类型
      */
     fun toString(charset: Charset): String {
         return ret.RetByteArray.toString(charset)

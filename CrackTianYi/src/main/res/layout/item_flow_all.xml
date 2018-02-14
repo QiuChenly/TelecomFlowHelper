@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/mItemList_allflow_from"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="来自 QiuChenly 的流量礼包:" />
+
+    <TextView
+        android:id="@+id/mItemList_allflow_num"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="号码: 17788888888" />
+
+    <TextView
+        android:id="@+id/mItemList_allflow_total"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="总流量/剩余: 1024MB/500MB 50%" />
+
+    <TextView
+        android:id="@+id/mItemList_allflow_totalDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="到期时间: 2018.08.08" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:background="#2d2d2d" />
+
+</LinearLayout>

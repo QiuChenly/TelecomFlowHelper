@@ -3,7 +3,9 @@ package com.qiuchen.tianyicrack.Presenter
 import android.os.Handler
 import android.os.Looper.getMainLooper
 import com.google.gson.Gson
+import com.qiuchen.jingyi.nativeHttp.nHttp
 import com.qiuchen.tianyicrack.Bean.*
+import com.qiuchen.tianyicrack.TianYiApi.DesEncrypt
 import com.qiuchen.tianyicrack.TianYiApi.HttpApi
 import com.qiuchen.tianyicrack.mSContext
 import java.nio.charset.Charset
@@ -25,9 +27,7 @@ class presenter {
             }
             Thread {
                 kotlin.run {
-                    var s = HttpApi().exec(HttpApi.Build_Login()
-                            .setUser(user, pass)
-                            .get())
+                    var s = HttpApi().exec(HttpApi().Build_Login(user, pass))
                     if (s.getStatusCode() == 200) {
                         val ret = s.toString(Charset.defaultCharset())
                         loginResult = Gson().fromJson(ret, loginCallback::class.java)
@@ -75,6 +75,25 @@ class presenter {
             fun onFlashed()
         }
 
+        fun getFlowInfo(token: String, areaCode: String, phone: String): FlowExpress.GetFlowListBean {
+            val data = "userPhone=$phone;accNbr=$phone;myWin=;myGet=G;actionCode=jsztActionCode_flowSendgetFlowInfo;channelCode_common=011028;pubAreaCode=$areaCode;pushUserId=android_${HttpApi.getAndroidID(phone)};coachUser=;userLogAccNbrType=2;userLogAccNbr=$phone;userTokenAccNbrType=2;ztVersion=5.0.0;ztInterSource=android;pubToken=$token;"
+            val s = nHttp.Builder("http://61.160.137.141/jszt/flowSend/getFlowInfo")
+                    .setPostData("para=" + DesEncrypt(true).encrypt(data))
+                    .setRequestHeader("Accept-Charset: UTF-8\n" +
+                            "Content-Type: application/x-www-form-urlencoded; charset=UTF-8\n" +
+                            "User-Agent: Dalvik/9.5.0 (Linux; U; Android 9.0.1; iPhone 9S Build/LMY99Z)")
+                    .Request()
+            var ret = FlowExpress.GetFlowListBean()
+            if (s.getStatusCode() == 200) {
+                val d = s.toString(Charset.defaultCharset())
+                try {
+                    ret = Gson().fromJson(d, FlowExpress.GetFlowListBean::class.java)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            return ret
+        }
 
         /**
          * 获取基本信息 QiuChenly
@@ -86,7 +105,7 @@ class presenter {
         fun getBaseInfo(token: String, areaCode: String, phone: String): mBaseInfoCollection? {
             val mBaseInfoCollection = mBaseInfoCollection()
             //登录成功,开始获取用户基本数据
-            var s = HttpApi().exec(HttpApi.Build_login2UserInfo(token, areaCode, phone).get())
+            var s = HttpApi().exec(HttpApi().Build_login2UserInfo(token, areaCode, phone))
             var str = ""
             if (s.getStatusCode() == 200) {
                 str = s.toString(Charset.defaultCharset())
@@ -103,7 +122,7 @@ class presenter {
             }
 
             //获取流量数据
-            s = HttpApi().exec(HttpApi.Build_GetTotalAcu(token, areaCode, phone).get())
+            s = HttpApi().exec(HttpApi().Build_GetTotalAcu(token, areaCode, phone))
             if (s.getStatusCode() == 200) {
                 str = s.toString(Charset.defaultCharset())
                 val CurrAcu = Gson().fromJson(str, CurrAcuBean::class.java)
@@ -129,7 +148,16 @@ class presenter {
                 val TotalUsedBill = Gson().fromJson(str, TotalUsedBillBean::class.java)
                 mBaseInfoCollection.dccBillFee = TotalUsedBill.body.dccBillFee
             }
+            mBaseInfoCollection.flowListBean = getFlowInfo(token, areaCode, phone)
             return mBaseInfoCollection
+        }
+
+        fun getFlowExpressInfo(str: String): FlowExpressOnlineBean {
+            return HttpApi().InitFlowExpressSharedInfo(str)
+        }
+
+        fun getFlowExpress(str: String, row: String): Boolean {
+            return HttpApi().Build_GetFlowByUser(str, row)
         }
 
         interface loginCB {

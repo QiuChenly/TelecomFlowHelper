@@ -12,6 +12,8 @@ public class test {
     void a() {
         Map<Integer, Boolean> m = new HashMap();
         m.put(1, true);
+        Boolean a = false;
+        String s = a ? "1" : "2";
     }
 
 }
