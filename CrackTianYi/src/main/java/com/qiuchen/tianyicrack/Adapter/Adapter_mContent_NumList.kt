@@ -1,10 +1,14 @@
 package com.qiuchen.tianyicrack.Adapter
 
 import android.animation.ObjectAnimator
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.RecyclerView
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -12,6 +16,17 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.*
+import com.github.florent37.expansionpanel.ExpansionLayout
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.qiuchen.tianyicrack.Bean.DB_PhoneInfoBean
 import com.qiuchen.tianyicrack.Bean.loginCallback
 import com.qiuchen.tianyicrack.Presenter.presenter
@@ -22,13 +37,19 @@ import com.qiuchen.tianyicrack.mSContext
  * Created by qiuchen on 2018/2/6.
  */
 class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
-                               val rv: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener {
+                               val rv: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener, OnChartValueSelectedListener {
+    override fun onNothingSelected() {
+
+    }
+
+    override fun onValueSelected(p0: Entry?, p1: Int, p2: Highlight?) {
+    }
 
     fun hasPhone(string: String): Boolean {
         return mList.any { it.user == string }
     }
 
-    internal var touchListener: View.OnTouchListener = View.OnTouchListener { view, motionEvent ->
+    private var touchListener: View.OnTouchListener = View.OnTouchListener { view, motionEvent ->
         when (motionEvent.action) {
             MotionEvent.ACTION_DOWN -> {
                 val upAnim = ObjectAnimator.ofFloat(view, "translationZ", -1f)
@@ -88,9 +109,76 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
         return mList.size
     }
 
+    fun generateCenterSpannableString(num: String): SpannableString {
+        val info = presenter.userList[num]?.flowInfo!!
+        val tmp1 = (info.leftFlow.toInt() - info.provinceLeftFlow.toInt()).toString()
+        val str: String = "流量数据\n" +
+                "收费流量剩余:${tmp1}MB\n" +
+                "免费流量剩余:${info.provinceLeftFlow}MB\n" +
+                "本月已使用量:${info.usedFlow}MB\n" +
+                "本月总数据量:${info.totalFlow}MB"
+        val a = SpannableString(str)
+        a.setSpan(RelativeSizeSpan(1.3f), 0, 4, 0)
+        var mFlowS = str.indexOf("收费流量剩余:", 0) + "收费流量剩余:".length
+        a.setSpan(ForegroundColorSpan(Color.RED), mFlowS, mFlowS + tmp1.length, 0)
+        mFlowS = str.indexOf("免费流量剩余:") + "免费流量剩余:".length
+        a.setSpan(ForegroundColorSpan(Color.GRAY), mFlowS, mFlowS + info.provinceLeftFlow.length, 0)
+        mFlowS = str.indexOf("本月已使用量:") + "本月已使用量:".length
+        a.setSpan(ForegroundColorSpan(ColorTemplate.getHoloBlue()), mFlowS, mFlowS + info.usedFlow.length, 0)
+        mFlowS = str.indexOf("本月总数据量:") + "本月总数据量:".length
+        a.setSpan(ForegroundColorSpan(Color.parseColor("#4a148c")), mFlowS, mFlowS + info.totalFlow.length, 0)
+/*        s.setSpan(RelativeSizeSpan(1.7f), 0, 4, 0)
+        s.setSpan(StyleSpan(Typeface.NORMAL), 4, s.length - 5, 0)
+        s.setSpan(ForegroundColorSpan(Color.GRAY), 4, s.length - 5, 0)
+        s.setSpan(RelativeSizeSpan(.8f), 4, s.length - 5, 0)
+        s.setSpan(StyleSpan(Typeface.ITALIC), s.length - 4, s.length, 0)
+        s.setSpan(ForegroundColorSpan(ColorTemplate.getHoloBlue()), s.length - 4, s.length, 0)*/
+        return a
+    }
+
+    private fun setData(mPieChart: PieChart, mParties: Array<String>, num: String) {
+        val info = presenter.userList[num]?.flowInfo!!
+        val yVals1 = java.util.ArrayList<Entry>()
+        yVals1.add(Entry((info.leftFlow.toInt() - info.provinceLeftFlow.toInt()).toFloat(), 0))
+        yVals1.add(Entry(info.provinceLeftFlow.toFloat(), 1))
+        // IMPORTANT: In a PieChart, no values (Entry) should have the same
+        // xIndex (even if from different DataSets), since no values can be
+        // drawn above each other.
+
+        val xVals = java.util.ArrayList<String>()
+
+        (0 until mParties.size).mapTo(xVals) { mParties[it % mParties.size] }
+
+        val dataSet = PieDataSet(yVals1, "")
+        dataSet.sliceSpace = 2f
+        dataSet.selectionShift = 5f
+
+        // add a lot of colors
+
+        val colors = java.util.ArrayList<Int>()
+
+        colors.add(Color.RED)
+        colors.add(Color.GRAY)
+
+        dataSet.colors = colors
+        //dataSet.setSelectionShift(0f);
+
+        val data = PieData(xVals, dataSet)
+        data.setValueFormatter(PercentFormatter())
+        data.setValueTextSize(11f)
+        data.setValueTextColor(Color.WHITE)
+        mPieChart.data = data
+
+        // undo all highlights
+        mPieChart.highlightValues(null)
+
+        mPieChart.invalidate()
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         with(holder.itemView) {
             tag = position
+
             setOnTouchListener(touchListener)
             setOnLongClickListener {
                 val v = LayoutInflater.from(context)
@@ -159,7 +247,7 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
                 if (!mSContext.hasNet()) {
                     tv_OnlineState.text = "已登录(无网络连接!请联网后下拉刷新!)"
                 } else {
-                    presenter.loginSingle(mList[position], object : presenter.Companion.refreshCallback {
+                    presenter.loginSingle(mList[position], object : presenter.Companion.RefreshCallback {
                         override fun onFlashed() {
                             val info = presenter.userList[mList[position].user]
                             if (info != null) {
@@ -167,14 +255,48 @@ class Adapter_mContent_NumList(val mList: ArrayList<DB_PhoneInfoBean>,
                                 val tv_UserName = findViewById<TextView>(R.id.mItemList_NumList_UserName)
                                 tv_UserName.text = info.customerName
                                 val tv_Bill: TextView = findViewById(R.id.mItemList_NumList_Acur)
-                                tv_Bill.text = "话费:本月消费 ${info.dccBillFee} 元,剩余 ${info.totalMoney} 元"
+                                tv_Bill.text = "话费:剩余 ${info.totalMoney} 元"
                                 val tv_FlowInfo: TextView = findViewById(R.id.mItemList_NumList_Flow)
-                                tv_FlowInfo.text = "流量:本月共 ${info.flowInfo.totalFlow} MB,剩余 ${info.flowInfo.leftFlow} MB"
+                                tv_FlowInfo.text = "流量:剩余 ${info.flowInfo.provinceLeftFlow} MB"
                                 tv_OnlineState.text = "已登录(刷新数据成功!)"
+
+                                //不多BB,成功了直接刷新,不成功不刷新
+                                val expansionLayout: ExpansionLayout = findViewById(R.id.expansionLayout)
+                                val mPieChart = findViewById<PieChart>(R.id.mItemList_NumList_PieChart)
+                                expansionLayout.addListener { expansionLayout, expanded ->
+                                    mPieChart.setDescription("流量详细数据")
+                                    mPieChart.setUsePercentValues(true)
+                                    mPieChart.setExtraOffsets(5f, 5f, 5f, 5f)
+                                    mPieChart.dragDecelerationFrictionCoef = 0.95f
+                                    mPieChart.centerText = generateCenterSpannableString(mList[position].user)
+                                    mPieChart.isDrawHoleEnabled = true
+                                    mPieChart.setHoleColorTransparent(true)
+
+                                    mPieChart.setTransparentCircleColor(Color.WHITE)
+                                    mPieChart.setTransparentCircleAlpha(110)
+
+                                    mPieChart.holeRadius = 58f
+                                    mPieChart.transparentCircleRadius = 61f
+
+                                    mPieChart.setDrawCenterText(true)
+
+                                    // add a selection listener
+                                    mPieChart.setOnChartValueSelectedListener(this@Adapter_mContent_NumList)
+                                    //mPieChart.data = null
+
+                                    setData(mPieChart, arrayOf("收费流量", "免费流量"), mList[position].user)
+                                    // mChart.spin(2000, 0, 360);
+
+                                    val l = mPieChart.legend
+                                    l.position = Legend.LegendPosition.RIGHT_OF_CHART
+                                    l.xEntrySpace = 7f
+                                    l.yEntrySpace = 0f
+                                    l.yOffset = 0f
+                                }
                             } else {
                                 //解决重复刷新登录失败掉线账号的问题
-                                mList[position].token = ""
-                                presenter.mDB.saveSession(mList[position].user, "", "")
+//                                mList[position].token = ""
+//                                presenter.mDB.saveSession(mList[position].user, "", "")
                                 mID = R.drawable.user_offline
                                 tv_OnlineState.text = "离线(疑似在官方客户端登录,请点击重新登录.)"
                                 this@with.setOnClickListener(this@Adapter_mContent_NumList)

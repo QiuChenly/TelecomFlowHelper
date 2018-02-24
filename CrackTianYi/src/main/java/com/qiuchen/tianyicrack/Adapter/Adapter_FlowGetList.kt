@@ -27,8 +27,8 @@ class Adapter_FlowGetList(private val mList: ArrayList<String>) : RecyclerView.A
             var str = "无数据(未登录)"
             if (presenter.userList[mList[position]] != null)
                 str = presenter.userList[mList[position]]?.customerName.toString()
-            getFlow_item_userNick.setText(str)
-            getFlow_item_userNum.setText(mList[position])
+            getFlow_item_userNick.text = str
+            getFlow_item_userNum.text = mList[position]
         }
     }
 

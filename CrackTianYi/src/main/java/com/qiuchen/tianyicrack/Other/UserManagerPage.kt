@@ -16,7 +16,7 @@ import com.qiuchen.tianyicrack.mSContext
 /**
  * Created by qiuchen on 2018/2/7.
  */
-abstract class onePlus(val v: View) : BasePageView(v), SwipeRefreshLayout.OnRefreshListener, presenter.Companion.refreshCallback {
+abstract class UserManagerPage(val v: View) : BasePageView(v), SwipeRefreshLayout.OnRefreshListener, presenter.Companion.RefreshCallback {
     override fun onFlashed() {
         if (mContent_SwipeLayout.isRefreshing)
             mContent_SwipeLayout.isRefreshing = false

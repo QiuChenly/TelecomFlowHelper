@@ -101,15 +101,54 @@ class FlowOneKeyGet(v: View) : BasePageView(v), Handler.Callback {
             1 -> {
                 val result = msg.data["isOK"] as Boolean
                 val id = msg.data["id"] as Int
-                val item = getFlow_userList.findViewHolderForPosition(id)
+                val item = getFlow_userList.findViewHolderForLayoutPosition(id)
+                val num = msg.data["num"] as String
                 with(item.itemView) {
                     val getFlow_item_getState = findViewById<TextView>(R.id.getFlow_item_getState)
                     getFlow_item_getState.text = "用户信息( ${if (result) "领取成功" else "领取失败"} )"
+                    //领取成功调用方法
+                    if (result && getFlow_autoGetFlow.isChecked)
+                        threadPools.submit {
+                            Thread.sleep(1000)
+                            val s = presenter.getFlowReal(num)
+                            hand.sendMessage(Message().apply {
+                                data = Bundle().apply {
+                                    putInt("state", s)
+                                    putInt("id", id)
+                                }
+                                what = 10
+                            })
+                        }
+                }
+            }
+            10 -> {
+                val state = msg.data["state"] as Int
+                val id = msg.data["id"] as Int
+                with(getFlow_userList.findViewHolderForLayoutPosition(id).itemView) {
+                    val getFlow_item_getState = findViewById<TextView>(R.id.getFlow_item_getState)
+                    getFlow_item_getState.text = "用户信息( ${when (state) {
+                        -1 -> {
+                            "失败:此手机号码根本没登录APP"
+                        }
+                        -2 -> {
+                            "失败:没发现待领取的流量"
+                        }
+                        0 -> {
+                            "成功:流量激活成功"
+                        }
+                        1 -> {
+                            "失败:未知错误"
+                        }
+                        else -> {
+                            "不可能显示的文字"
+                        }
+                    }} )"
                 }
             }
         }
         return true
     }
+
 
     var mFlowExpressOnline = com.qiuchen.tianyicrack.Bean.FlowExpressOnlineBean()
     override fun onClick(v: View?) {
@@ -124,6 +163,7 @@ class FlowOneKeyGet(v: View) : BasePageView(v), Handler.Callback {
                 }
             }
             getFlow_onekey.id -> {
+                adapter.notifyDataSetChanged()
                 onekeyGetFlow()
             }
             getFlow_urlResolve.id -> {
@@ -153,7 +193,6 @@ class FlowOneKeyGet(v: View) : BasePageView(v), Handler.Callback {
                 }.start()
             }
         }
-
     }
 
 
@@ -167,6 +206,7 @@ class FlowOneKeyGet(v: View) : BasePageView(v), Handler.Callback {
                 msg.data = Bundle().apply {
                     putBoolean("isOK", result)
                     putInt("id", i)
+                    putString("num", n)
                 }
                 msg.what = 1
                 hand.sendMessage(msg)

@@ -37,18 +37,10 @@ class ExampleUnitTest {
 ////        println(getMD5("123"))
 //        println(s.toString(Charset.defaultCharset()))
 
-        val ss = DesEncrypt(true).decrypt("1628c578c122f549d3044f153db71f39850f3f0d6d85e6d6e141a4718aff7ffe83d5e2b17fe66e964f1a2d1426200e237300b429b0d7764de894fc92ff95cd3b6e73e29834bc56562f3481f24f2bfa19fcc48c67d2d89564d954f4c8e51a4cd202b52fbf2aeaf8b05d6fd002ce2b74146c6b09a247186eebbe1da79a9d19f17a1752e4963c3c14c6d116a7a9ea1feeb24da1418aee4da96773b08e11a7b94678e6b6a7a487f59e711d108e3ea20265de83f5fce657f8aa2dbcd518fd5d49ce8b8bb3c67bdf4140207cd0ac7ae8cf630397b88f10fdae6f007689f5bf91627bb8a682a99c846a740234c1c9fcacaba4478123ae574d854b1d36774905f26a3badc95cf40a8c8140057689f5bf91627bb8755979383fd99de20d4c43dafd25e32624b6c97bbaf230cfdf14d8896daf36e6d8fae11c7911fc18722085790d57309abfe799c186f5b3734e02b491874be0cc74ea47c801de3282fd0118ed4b5abde0bd9a09fdc0a2ef0f")
-        //println(ss)
+        val ss = DesEncrypt(true).decrypt("e73234d312a5a8a2b63296f6045f016871adcda3782bc0da547cea923da70b61108fad92e57caac0a0e73dd688a2d6295f7263cca6c6a3667905e678a8ccc4b8af70558c0ea881dffd44948475a21b2ddd13a29f096a555376584d475d4eff9fe894fc92ff95cd3b6e73e29834bc56562f3481f24f2bfa19fcc48c67d2d895649e65d110699a3e9bb1abee08b97f3797ba72ac3f1648834911932588cddb755511f2ce83b497f00616cbce96cecbfb213bda1ad191561f396338e252359cd7015019cfdc3a0bac383076a4fadc66ffb389fe197802dfd2226fdb8bf2d88994122a286828a04581cf2b6ec9a9433ed7e4c61e285a2bf2d17402aa65711464f691a7f0d8a3bf237c0268b19a6ff27965b54642826f275dc02d9c49cb132e17d48ecb8d7ef9bf971b65abb31a94da2b07336d2e4dd3ce07386668b19a6ff27965b574be815cc4720d86531b525be4d382eb5b0ae6c186cfd1e0537bfded97520d7a177aea4e7f42a77af2bbf2f7d92e341009af362b7afe07267de5ce700855d4046ff02025533bb23167296ba53aff366ec8c6d7fdff3a185c")
+        //accNbr=17714602936;sendPhone=17768742864;offerSpecl=106024;family=2;goodName=1024;areaCode=0515;actionCode=jsztActionCode_flowSendflowDeliveryOrder;channelCode_common=011015;pubAreaCode=0515;pushUserId=android_355572cc6baaff7820180222012227183;coachUser=;userLogAccNbrType=2;userLogAccNbr=17714602936;userTokenAccNbrType=2;ztVersion=5.0.0;ztInterSource=android;pubToken=4bf823a866c94a3fbc369bb5351afc82;
 
-
-        val s = nHttp.Builder("http://url.cn/5j6YHPS")
-                .setRequestHeader("Accept-Charset: UTF-8\n" +
-                        "Content-Type: application/x-www-form-urlencoded; charset=UTF-8\n" +
-                        "User-Agent: Dalvik/9.5.0 (Linux; U; Android 9.0.1; iPhone 9S Build/LMY99Z)")
-                .Request()
-        println(s.getStatusCode())
-        println(s.getRedirectURL())
-        println(s.toString(Charset.defaultCharset()))
+        println(ss)
     }
 
     @Test
@@ -59,5 +51,4 @@ class ExampleUnitTest {
         println(if(a) "SB" else "Fail")
         //{"TSR_RESULT":"0","TSR_MSG":"领取成功，快去“天翼生活”客户端领取吧~","flowLeft":"2048"}
     }
-
 }

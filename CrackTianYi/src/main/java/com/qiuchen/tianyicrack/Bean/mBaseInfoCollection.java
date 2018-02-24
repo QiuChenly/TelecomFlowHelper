@@ -47,7 +47,7 @@ public class mBaseInfoCollection {
      */
     public FlowInfo flowInfo = new FlowInfo();
 
-    public FlowExpress.GetFlowListBean flowListBean = new FlowExpress.GetFlowListBean();
+    public FlowExpress flowListBean = new FlowExpress();
 
     public class FlowInfo {
         /**

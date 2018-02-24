@@ -18,15 +18,15 @@ import com.qiuchen.tianyicrack.Adapter.Adapter_NavigationRV
 import com.qiuchen.tianyicrack.Base.BaseApp
 import com.qiuchen.tianyicrack.Bean.DB_PhoneInfoBean
 import com.qiuchen.tianyicrack.Bean.NavigationListItem
-import com.qiuchen.tianyicrack.Other.onPageChange
-import com.qiuchen.tianyicrack.Other.onePlus
+import com.qiuchen.tianyicrack.Other.PageChangeListener
+import com.qiuchen.tianyicrack.Other.UserManagerPage
 import com.qiuchen.tianyicrack.R
 import com.qiuchen.tianyicrack.mSContext
 import kotlinx.android.synthetic.main.activity_default_main.*
 import kotlinx.android.synthetic.main.activity_navigation.*
 
 
-class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageChangeListener {
+class DefaultMain : BaseApp(), PageChangeListener.PageChangeUtils, ViewPager.OnPageChangeListener {
     override fun onPageScrollStateChanged(state: Int) {
 
     }
@@ -60,6 +60,7 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
     }
 
     override fun onPageSelected(position: Int) {
+        FuckTY.text = MenuTitleList[position].mItemName
     }
 
     override fun getView(position: Int): View {
@@ -72,35 +73,37 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
         }
     }
 
+    private lateinit var MenuTitleList: ArrayList<NavigationListItem>
     private lateinit var mList: ArrayList<View>
-    private lateinit var onPageChanges: onPageChange
+    private lateinit var onPageChanges: PageChangeListener
     override fun onInit() {
         mContent_Menu.setOnClickListener(this)
         mContent_FB_Add.setOnClickListener(this)
 
-
-        val title = arrayListOf(NavigationListItem().apply {
+        MenuTitleList = arrayListOf(NavigationListItem().apply {
             this.mItemName = "账户管理•AccountManager"
         }, NavigationListItem().apply {
-            this.mItemName = "流量管理•FlowManager"
+            this.mItemName = "通知中心•NotificationCenter"
         }, NavigationListItem().apply {
             this.mItemName = "一键领取流量•OneKeyFlow"
         })
 
+        FuckTY.text = MenuTitleList[0].mItemName
+
         mNavigation_List.layoutManager = LinearLayoutManager(this)
         mNavigation_List.setHasFixedSize(true)
-        mNavigation_List.adapter = object : Adapter_NavigationRV(title) {
+        mNavigation_List.adapter = object : Adapter_NavigationRV(MenuTitleList) {
             override fun itemOnClick(position: Int) {
                 mContent_VP.currentItem = position
                 mContent_DLayout.closeDrawer(Gravity.START)
             }
         }
 
-        val views = arrayOf(R.layout.layout_oneplus, R.layout.layout_flow_express_fuli, R.layout.layout_getflow)
+        val views = arrayOf(R.layout.layout_oneplus, R.layout.layout_flow_notification_center, R.layout.layout_getflow)
         mList = ArrayList()
         views.mapTo(mList) { LayoutInflater.from(this).inflate(it, null) }
         mContent_VP.adapter = Adapter_ContentVP(mList)
-        onPageChanges = object : onPageChange(this) {
+        onPageChanges = object : PageChangeListener(this) {
             override fun onRecyclerViewScroll(scrollState: Int) {
                 if (scrollState == 1) {
                     hideFB()
@@ -137,7 +140,7 @@ class DefaultMain : BaseApp(), onPageChange.PageChangeUtils, ViewPager.OnPageCha
                     val users = user.text.toString()
                     val passs = pass.text.toString()
                     if (users.isNotEmpty() && passs.isNotEmpty() && users.length == 11 && passs.length == 6) {
-                        val element = onPageChanges.getViewHelper(position = 0) as onePlus
+                        val element = onPageChanges.getViewHelper(position = 0) as UserManagerPage
                         if (element.hasPhone(users))
                             Toast.makeText(this, "此手机号已存在于本地中!请输入其他手机号!", Toast.LENGTH_SHORT).show()
                         else {

@@ -43,6 +43,7 @@
                     </FrameLayout>
 
                     <TextView
+                        android:id="@+id/FuckTY"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -86,5 +87,4 @@
 
         <include layout="@layout/activity_navigation" />
     </android.support.design.widget.NavigationView>
-
 </android.support.v4.widget.DrawerLayout>

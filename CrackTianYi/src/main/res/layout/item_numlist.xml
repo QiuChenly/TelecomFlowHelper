@@ -84,15 +84,60 @@
             android:layout_height="0.5dp"
             android:background="#bdbdbd" />
 
-        <TextView
-            android:id="@+id/mItemList_NumList_knownMore"
+        <com.github.florent37.expansionpanel.ExpansionHeader
+            android:id="@+id/mExpansionHeader"
             android:layout_width="match_parent"
-            android:layout_height="35dp"
-            android:layout_gravity="bottom"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:gravity="center"
-            android:text="了解更多"
-            android:textColor="#424242" />
+            android:layout_height="wrap_content"
+            app:expansion_headerIndicator="@id/headerIndicator"
+            app:expansion_layout="@id/expansionLayout"
+            app:expansion_toggleOnClick="true">
+
+            <!-- HEADER -->
+            <!-- HEADER INDICATOR -->
+            <FrameLayout
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="end">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/headerIndicator"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:adjustViewBounds="true"
+                    app:srcCompat="@drawable/ic_expansion_header_indicator_grey_24dp" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:text="了解更多"
+                android:textColor="#424242" />
+
+
+        </com.github.florent37.expansionpanel.ExpansionHeader>
+
+        <com.github.florent37.expansionpanel.ExpansionLayout
+            android:id="@+id/expansionLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- CONTENT -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/mItemList_NumList_PieChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp" />
+            </LinearLayout>
+
+        </com.github.florent37.expansionpanel.ExpansionLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>
